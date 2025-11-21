@@ -50,41 +50,19 @@ async function handleLogin() {
     setLoading(true);
 
     try {
-        // Llamada a la API de Claude
-        const response = await fetch("https://api.anthropic.com/v1/messages", {
+        // Llamada al PHP local
+        const response = await fetch("http://localhost/PROYECTO_PRUEBA/login.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                model: "claude-sonnet-4-20250514",
-                max_tokens: 1000,
-                messages: [
-                    {
-                        role: "user",
-                        content: `Eres un sistema de autenticación simple. Valida estas credenciales:
-Usuario: ${username}
-Contraseña: ${password}
-
-Para este demo educativo, considera válidas estas credenciales:
-- usuario: "admin" / contraseña: "1234"
-- usuario: "demo" / contraseña: "demo"
-
-Responde SOLO con un JSON en este formato (sin markdown, sin preamble):
-{"success": true/false, "message": "mensaje", "user": {"name": "nombre", "role": "rol"}}`
-                    }
-                ],
+                username: username,
+                password: password
             })
         });
 
-        const data = await response.json();
-        
-        // Extraer el texto de la respuesta
-        const responseText = data.content.find(item => item.type === "text")?.text || "";
-        
-        // Limpiar y parsear el JSON
-        const cleanJson = responseText.replace(/```json|```/g, "").trim();
-        const result = JSON.parse(cleanJson);
+        const result = await response.json();
 
         if (result.success) {
             // Login exitoso
