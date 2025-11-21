@@ -14,22 +14,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // ============ CONFIGURACIÓN DE BASE DE DATOS ============
-$host = 'localhost';
+$host = '127.0.0.1';
+$port = '3306';
 $dbname = 'login_db';
 $db_user = 'root';
-$db_pass = ''; // Por defecto XAMPP no tiene contraseña
+$db_pass = 'Root2020';
 
 // Conectar a MySQL
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $db_user, $db_pass);
+    $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+    $pdo = new PDO($dsn, $db_user, $db_pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
+} catch (PDOException $e) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
         'message' => 'Error de conexión a la base de datos',
         'error' => $e->getMessage(),
-        'instrucciones' => 'Verifica que MySQL esté corriendo y que la base de datos "login_db" exista'
+        'config' => [
+            'host' => $host,
+            'port' => $port,
+            'database' => $dbname,
+            'user' => $db_user
+        ],
+        'instrucciones' => [
+            '1. Verifica que MySQL esté corriendo en el puerto ' . $port,
+            '2. Crea la base de datos "login_db" en MySQL Workbench',
+            '3. Verifica usuario y contraseña en este archivo PHP',
+            '4. Asegúrate de que XAMPP pueda conectarse a MySQL Workbench'
+        ]
     ]);
     exit();
 }
@@ -41,9 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (empty($_GET)) {
         http_response_code(200);
         echo json_encode([
-            'api' => 'Login API con MySQL',
+            'api' => 'Login API con MySQL Workbench',
             'version' => '2.0',
-            'database' => 'Conectado',
+            'database' => 'Conectado exitosamente',
+            'config' => [
+                'host' => $host,
+                'port' => $port,
+                'database' => $dbname
+            ],
             'endpoints' => [
                 'POST /login.php' => 'Login con JSON body',
                 'GET /login.php?username=X&password=Y' => 'Login con parámetros URL'
@@ -79,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'message' => 'Login exitoso (GET)',
+                'message' => 'Login exitoso',
                 'user' => [
                     'id' => $user['id'],
                     'username' => $user['username'],
@@ -149,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'message' => 'Login exitoso (POST)',
+                'message' => 'Login exitoso',
                 'user' => [
                     'id' => $user['id'],
                     'username' => $user['username'],
